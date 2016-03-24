@@ -50,15 +50,16 @@ require "gfa"
 require "rgl/dot"
 
 my_gfa = GFA.load("data/tiny.gfa")
-my_gfa.implicit_graph.write_to_graphic_file('jpg')
+dg = my_gfa.implicit_graph
+dg.write_to_graphic_file('jpg')
 ```
 ![tiny](data/tiny.jpg)
 
-If you don't care about orientation, you can also build a simple undirected
-graph:
+If you don't care about orientation, you can also build an undirected graph
+without orientation:
 ```ruby
-GFA::GraphVertex.orient! false;
-my_gfa.implicit_graph.write_to_graphic_file('jpg')
+dg = my_gfa.implicit_graph(orient:false)
+f.write_to_graphic_file('jpg')
 ```
 ![tiny](data/tiny_undirected.jpg)
 

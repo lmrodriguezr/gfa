@@ -2,14 +2,29 @@ require "rgl/adjacency"
 require "rgl/implicit"
 
 class GFA
-   def adjacency_graph
-      implicit_graph.to_adjacency
-   end
    
-   def implicit_graph
-      rgl_implicit_graph
+   ##
+   # Generates a RGL::ImplicitGraph object describing the links in the GFA.
+   # The +opts+ argument is a hash with any of the following key-value pairs:
+   #
+   # * :orient => bool. If false, ignores strandness of the links. By default
+   #   true.
+   # * :directed => bool. If false, ignores direction of the links. By defaut
+   #   the same value as :orient.
+   
+   def implicit_graph(opts={})
+      rgl_implicit_graph(opts)
    end
 
+   ##
+   # Generates a RGL::DirectedAdjacencyGraph or RGL::AdjacencyGraph object.
+   # The +opts+ argument is a hash with the same supported key-value pairs as
+   # in #implicit_graph.
+   
+   def adjacency_graph(opts={})
+      implicit_graph(opts).to_adjacency
+   end
+   
    private
    
       def segment_names_with_orient
@@ -18,47 +33,58 @@ class GFA
 	 end.flatten(1).to_set
       end
 
-      def rgl_implicit_graph
+      def segment_names
+	 segments.map do |s|
+	    GFA::GraphVertex.idx(s, nil)
+	 end.to_set
+      end
+
+      def rgl_implicit_graph(opts)
+         opts[:orient] = true if opts[:orient].nil?
+	 opts[:directed] = opts[:orient] if opts[:directed].nil?
+	 
 	 RGL::ImplicitGraph.new do |g|
 	    g.vertex_iterator do |b|
-	       segment_names_with_orient.each &b
+	       (opts[:orient] ? segment_names_with_orient :
+		  segment_names).each &b
 	    end
 	    g.adjacent_iterator do |x,b|
 	       links.each do |l|
 		  if l.from?(x.segment, x.orient)
-		     b.call(GFA::GraphVertex.idx(l.to, l.to_orient))
-		  elsif GraphVertex.orient? and
-				    l.to?(x.segment, x.orient=="+" ? "-" : "+")
-		     b.call(GFA::GraphVertex.idx(l.from,
-			l.from_orient.value=="+" ? "-" : "+"))
+		     orient = opts[:orient] ? l.to_orient : nil
+		     b.call(GFA::GraphVertex.idx(l.to, orient))
+		  elsif opts[:orient] and l.to?(x.segment, orient_rc(x.orient))
+		     orient = orient_rc(l.from_orient.value)
+		     b.call(GFA::GraphVertex.idx(l.from, orient))
 		  end
 	       end
 	    end
-	    g.directed = GFA::GraphVertex.orient?
+	    g.directed = opts[:directed]
 	 end
       end
 
+      def orient_rc(o) o=="+" ? "-" : "+" ; end
+
 end
 
-class GFA::GraphVertex
+
+class GFA::GraphVertex # :nodoc:
+   
    # Class-level
    @@idx = {}
-   @@orient = true
    def self.idx(segment, orient)
       n = GFA::GraphVertex.new(segment, orient)
       @@idx[n.to_s] ||= n
       @@idx[n.to_s]
    end
-   def self.orient? ; @@orient ; end
-   def self.orient!(v) @@orient=v ; end
    
    # Instance-level
    attr :segment, :orient
+   
    def initialize(segment, orient)
       @segment = segment.is_a?(GFA::Record::Segment) ? segment.name.value :
-		  segment.is_a?(GFA::Field) ? segment.value : segment
-      @orient  = !self.class.orient? ? nil :
-		  orient.is_a?(GFA::Field) ? orient.value : orient
+		 segment.is_a?(GFA::Field) ? segment.value : segment
+      @orient  = orient.is_a?(GFA::Field) ? orient.value : orient
    end
 
    def to_s
