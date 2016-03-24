@@ -58,8 +58,8 @@ dg.write_to_graphic_file('jpg')
 If you don't care about orientation, you can also build an undirected graph
 without orientation:
 ```ruby
-dg = my_gfa.implicit_graph(orient:false)
-f.write_to_graphic_file('jpg')
+ug = my_gfa.implicit_graph(orient:false)
+ug.write_to_graphic_file('jpg')
 ```
 ![tiny](data/tiny_undirected.jpg)
 
