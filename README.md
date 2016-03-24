@@ -40,6 +40,29 @@ end
 fh.close
 ```
 
+## Visualizing GFA
+
+Any `GFA` object can be exported as an [`RGL`][rgl] graph using the methods
+`adjacency_graph` and `implicit_graph`. For example, you can render
+[tiny.gfa](data/tiny.gfa):
+```ruby
+require "gfa"
+require "rgl/dot"
+
+my_gfa = GFA.load("data/tiny.gfa")
+my_gfa.implicit_graph.write_to_graphic_file('jpg')
+```
+![tiny](data/tiny.jpg)
+
+If you don't care about orientation, you can also build a simple undirected
+graph:
+```ruby
+GFA::GraphVertex.orient! false;
+my_gfa.implicit_graph.write_to_graphic_file('jpg')
+```
+![tiny](data/tiny_undirected.jpg)
+
+
 # Author
 
 [Luis M. Rodriguez-R][lrr].
@@ -50,3 +73,4 @@ fh.close
 
 [GFA-spec]: https://github.com/pmelsted/GFA-spec
 [lrr]: http://lmrodriguezr.github.io/
+[rgl]: https://github.com/monora/rgl
