@@ -10,17 +10,27 @@ class GFA::Record
       :C => :Containment,
       :P => :Path
    }
+   REQ_FIELDS = []
+   OPT_FIELDS = {}
    TYPES = CODES.values
+   
+   TYPES.each do |t|
+      require "gfa/record/#{t.downcase}"
+   end
 
    # Instance-level
    attr :fields
+   
    def type ; CODES[code] ; end
+   
    def code ; self.class::CODE ; end
+   
    def empty? ; fields.empty? ; end
+   
    def to_s
       o = [code.to_s]
       i = 2
-      while not fields[i].nil?
+      REQ_FIELDS.each_index do |i|
 	 o << fields[i].to_s(false)
 	 i += 1
       end
@@ -30,8 +40,9 @@ class GFA::Record
       end
       o.join("\t")
    end
-   TYPES.each do |t|
-      require "gfa/record/#{t.downcase}"
+   
+   def hash
+      fields.hash
    end
 
    private
@@ -48,6 +59,7 @@ class GFA::Record
 	 klass = Object.const_get("GFA::Field::#{f_type_name}")
 	 @fields[ f_tag ] = klass.new(f_value)
       end
+      
       def add_opt_field(f, known)
 	 m = /^([A-Za-z]+):([A-Za-z]+):(.*)$/.match(f) or
 	    raise "Cannot parse field: '#{f}'."
@@ -61,4 +73,5 @@ class GFA::Record
 	    known[f_tag].nil? or known[f_tag] == f_type
 	 add_field(f_tag, f_type, f_value)
       end
+
 end
