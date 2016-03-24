@@ -1,5 +1,7 @@
 # Graphical Fragment Assembly (GFA) for Ruby
 
+[![Code Climate](https://codeclimate.com/github/lmrodriguezr/gfa/badges/gpa.svg)](https://codeclimate.com/github/lmrodriguezr/gfa)
+
 This implementation follows the specifications of [GFA-spec][].
 
 
