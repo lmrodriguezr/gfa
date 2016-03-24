@@ -3,6 +3,7 @@ require "gfa/common"
 require "gfa/record"
 require "gfa/parser"
 require "gfa/generator"
+require "gfa/graph"
 
 ##
 # = Graphical Fragment Assembly (GFA)
