@@ -46,8 +46,8 @@ class GFA
    # Instance-level
    attr :gfa_version, :records
    Record::TYPES.each do |r_type|
-      plural = "#{r_type}s"
-      singular = "#{r_type}"
+      plural = "#{r_type.downcase}s"
+      singular = "#{r_type.downcase}"
       define_method(plural) do
 	 records[r_type]
       end

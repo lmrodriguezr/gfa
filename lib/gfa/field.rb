@@ -14,11 +14,19 @@ class GFA::Field
    
    # Instance-level
    attr :value
+
    def type ; CODES[code] ; end
+   
    def code ; self.class::CODE ; end
+   
    def regex ; self.class::REGEX ; end
+   
    def to_s(with_type=true)
       "#{"#{code}:" if with_type}#{value.to_s}"
+   end
+   
+   def hash
+      value.hash
    end
 
    # Load types
