@@ -1,7 +1,6 @@
 require "test_helper"
-require "gfa/parser"
 
-class ParserTest < Test::Unit::TestCase
+class RecordTest < Test::Unit::TestCase
 
   def setup
     $rec_h = GFA::Record::Header.new("VN:Z:1.0")
