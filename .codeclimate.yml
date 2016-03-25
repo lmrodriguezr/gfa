@@ -17,4 +17,4 @@ engines:
 ratings:
   paths:
   - lib/**
-  - **.rb
+  - "**.rb"
