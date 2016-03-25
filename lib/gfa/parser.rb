@@ -39,8 +39,7 @@ class GFA
       ln.chomp!
       return nil if ln =~ /^\s*$/
       cols = ln.split("\t")
-      type = Record::CODES[cols.shift.to_sym]
-      Object.const_get("::GFA::Record::#{type}").new(*cols)
+      Record.code_class(cols.shift).new(*cols)
     end
 
 end
