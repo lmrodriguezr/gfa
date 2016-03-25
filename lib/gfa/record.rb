@@ -1,7 +1,7 @@
-require "gfa/field"
-
 class GFA::Record
+  
   # Class-level
+
   CODES = {
     :H => :Header,
     :S => :Segment,
@@ -15,6 +15,10 @@ class GFA::Record
 
   TYPES.each { |t| require "gfa/record/#{t.downcase}" }
 
+  [:CODES, :REQ_FIELDS, :OPT_FIELDS, :TYPES].each do |x|
+    define_singleton_method(x) { const_get(x) }
+  end
+
   def self.code_class(code)
     name = CODES[code.to_sym]
     raise "Unknown record type: #{code}." if name.nil?
@@ -26,6 +30,7 @@ class GFA::Record
   end
 
   # Instance-level
+
   attr :fields
    
   def type ; CODES[code] ; end
@@ -55,9 +60,9 @@ class GFA::Record
     def add_field(f_tag, f_type, f_value, format=nil)
       unless format.nil?
         msg = (f_tag.is_a?(Integer) ? "column #{f_tag}" : "#{f_tag} field")
-        ::GFA.assert_format(f_value, format, "Bad #{type} #{msg}")
+        GFA.assert_format(f_value, format, "Bad #{type} #{msg}")
       end
-      @fields[ f_tag ] = ::GFA::Field.code_class(f_type).new(f_value)
+      @fields[ f_tag ] = GFA::Field.code_class(f_type).new(f_value)
     end
       
     def add_opt_field(f, known)

@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.org/lmrodriguezr/gfa.svg?branch=master)](https://travis-ci.org/lmrodriguezr/gfa)
 [![Gem Version](https://badge.fury.io/rb/gfa.svg)](https://badge.fury.io/rb/gfa)
 
-
 # Graphical Fragment Assembly (GFA) for Ruby
 
 This implementation follows the specifications of [GFA-spec][].

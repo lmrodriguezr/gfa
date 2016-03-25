@@ -8,7 +8,7 @@ class GFA
    end
    def each_line(&blk)
       set_version_header("1.0") if gfa_version.nil?
-      Record::TYPES.each do |r_type|
+      GFA::Record.TYPES.each do |r_type|
 	 records[r_type].each do |record|
 	    blk[record.to_s]
 	 end
@@ -16,7 +16,7 @@ class GFA
    end
    def set_version_header(v)
       unset_version
-      @records[:Header] << ::GFA::Record::Header.new("VN:Z:#{v}")
+      @records[:Header] << GFA::Record::Header.new("VN:Z:#{v}")
       @gfa_version = v
    end
    def unset_version

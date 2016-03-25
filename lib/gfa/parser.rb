@@ -39,7 +39,7 @@ class GFA
       ln.chomp!
       return nil if ln =~ /^\s*$/
       cols = ln.split("\t")
-      Record.code_class(cols.shift).new(*cols)
+      GFA::Record.code_class(cols.shift).new(*cols)
     end
 
 end

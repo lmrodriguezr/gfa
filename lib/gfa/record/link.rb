@@ -43,7 +43,7 @@ class GFA::Record::Link < GFA::Record
       end
 
       def segment_name(segment)
-         segment.is_a?(Record::Segment) ? segment.name.value :
+         segment.is_a?(GFA::Record::Segment) ? segment.name.value :
             segment.is_a?(Field) ? segment.value : segment
       end
 

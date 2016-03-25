@@ -1,5 +1,6 @@
 require "gfa/version"
 require "gfa/record"
+require "gfa/field"
 
 class GFA
    
@@ -12,7 +13,7 @@ class GFA
 
    # Instance-level
    attr :gfa_version, :records
-   Record::TYPES.each do |r_type|
+   GFA::Record.TYPES.each do |r_type|
       plural = "#{r_type.downcase}s"
       singular = "#{r_type.downcase}"
       define_method(plural) do
@@ -28,7 +29,7 @@ class GFA
 
    def initialize
       @records = {}
-      Record::TYPES.each { |t| @records[t] = [] }
+      GFA::Record.TYPES.each { |t| @records[t] = [] }
    end
    
    def empty?

@@ -1,5 +1,7 @@
 class GFA::Field
+  
   # Class-level
+
   CODES = {
     :A => :Char,
     :i => :SigInt,
@@ -11,6 +13,10 @@ class GFA::Field
   TYPES = CODES.values
 
   TYPES.each { |t| require "gfa/field/#{t.downcase}" }
+
+  [:CODES, :TYPES].each do |x|
+    define_singleton_method(x) { const_get(x) }
+  end
   
   def self.code_class(code)
     name = CODES[code.to_sym]
@@ -23,6 +29,7 @@ class GFA::Field
   end
    
   # Instance-level
+
   attr :value
 
   def type ; CODES[code] ; end
