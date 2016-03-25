@@ -32,17 +32,19 @@ class GFA::Record
   # Instance-level
 
   attr :fields
+
+  def [](k) fields[k] ; end
    
   def type ; CODES[code] ; end
    
-  def code ; self.class::CODE ; end
+  def code ; self.class.const_get(:CODE) ; end
    
   def empty? ; fields.empty? ; end
    
   def to_s
     o = [code.to_s]
-    REQ_FIELDS.each_index do |i|
-      o << fields[i].to_s(false)
+    self.class.REQ_FIELDS.each_index do |i|
+      o << fields[i+2].to_s(false)
     end
     fields.each do |k,v|
       next if k.is_a? Integer
@@ -52,8 +54,14 @@ class GFA::Record
   end
    
   def hash
-    fields.hash
+    {code => fields}.hash
   end
+
+  def eql?(rec)
+    hash == rec.hash
+  end
+
+  alias == eql?
 
   private
       

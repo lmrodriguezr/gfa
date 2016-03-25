@@ -14,13 +14,13 @@ class CommonTest < Test::Unit::TestCase
   def test_empty
     gfa = GFA.new
     assert(gfa.empty?)
-    assert_equal(gfa, GFA.new)
+    assert_equal(GFA.new, gfa)
   end
 
   def test_record_getters
     gfa = GFA.new
     assert_respond_to(gfa, :headers)
-    assert_equal(gfa.links, [])
+    assert_equal([], gfa.links)
     assert_nil( gfa.segment(0) )
   end
 
@@ -28,7 +28,7 @@ class CommonTest < Test::Unit::TestCase
     gfa = GFA.new
     assert_respond_to(gfa, :add_path)
     gfa.add_containment("zooq")
-    assert_equal(gfa.records[:Containment].first, "zooq")
+    assert_equal("zooq", gfa.records[:Containment].first)
   end
 
 end
