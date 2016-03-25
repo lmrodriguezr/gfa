@@ -85,6 +85,14 @@ ug.write_to_graphic_file("jpg")
 gem install gfa
 ```
 
+Or add the following line to your Gemfile:
+
+```ruby
+gem "gfa"
+```
+
+and run `bundle install` from your shell.
+
 
 # Author
 
