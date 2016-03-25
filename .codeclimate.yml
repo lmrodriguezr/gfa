@@ -11,5 +11,10 @@ engines:
     config:
       languages:
       - ruby
+        # mass_threshold: 30
   fixme:
     enabled: true
+ratings:
+  paths:
+  - lib/**
+  - **.rb
