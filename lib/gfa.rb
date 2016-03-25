@@ -1,6 +1,4 @@
-require "gfa/version"
 require "gfa/common"
-require "gfa/record"
 require "gfa/parser"
 require "gfa/generator"
 require "gfa/graph"
@@ -43,24 +41,3 @@ require "gfa/graph"
 #    end
 #    fh.close
 #
-class GFA
-   # Instance-level
-   attr :gfa_version, :records
-   Record::TYPES.each do |r_type|
-      plural = "#{r_type.downcase}s"
-      singular = "#{r_type.downcase}"
-      define_method(plural) do
-	 records[r_type]
-      end
-      define_method(singular) do |k|
-	 records[r_type][k]
-      end
-      define_method("add_#{singular}") do |v|
-	 @records[f] << v
-      end
-   end
-   def initialize
-      @records = {}
-      Record::TYPES.each { |t| @records[t] = [] }
-   end
-end

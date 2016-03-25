@@ -1,4 +1,3 @@
-require "gfa/common"
 require "gfa/field"
 
 class GFA::Record

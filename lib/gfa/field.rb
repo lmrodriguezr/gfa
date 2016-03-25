@@ -1,5 +1,3 @@
-require "gfa/common"
-
 class GFA::Field
    # Class-level
    CODES = {
