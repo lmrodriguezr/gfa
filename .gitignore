@@ -2,3 +2,4 @@
 gfa-*.gem
 .bundle
 Gemfile.lock
+doc/*

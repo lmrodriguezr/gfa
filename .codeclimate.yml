@@ -1,8 +1,13 @@
 exclude_paths:
 - "data/*"
 engines:
-   rubocop:
-      enabled: true
-      exclude_fingerprints:
-      - 676edf0da5631b526f8dc5c413221a0f
-      - 244a234d7952c8b94b0c66384613cc8d
+  rubocop:
+    enabled: true
+    exclude_fingerprints:
+    - 676edf0da5631b526f8dc5c413221a0f
+    - 244a234d7952c8b94b0c66384613cc8d
+  duplication:
+    enabled: true
+      config:
+	languages:
+	- ruby
