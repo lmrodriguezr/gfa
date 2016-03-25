@@ -2,5 +2,5 @@ language: ruby
 script: "bundle exec rake test"
 cache: bundler
 addons:
-   code_climate:
-      repo_token: 11b3799f652bfcec3af03397186bd9ed5f2a6aef22be59d014f407d7f7ff0d6d
+  code_climate:
+   repo_token: 11b3799f652bfcec3af03397186bd9ed5f2a6aef22be59d014f407d7f7ff0d6d
