@@ -8,6 +8,6 @@ engines:
     - 244a234d7952c8b94b0c66384613cc8d
   duplication:
     enabled: true
-      config:
-	languages:
-	- ruby
+    config:
+      languages:
+      - ruby
