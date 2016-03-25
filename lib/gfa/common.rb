@@ -22,7 +22,7 @@ class GFA
          records[r_type][k]
       end
       define_method("add_#{singular}") do |v|
-         @records[f] << v
+         @records[r_type] << v
       end
    end
 
