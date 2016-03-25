@@ -1,4 +1,8 @@
 [![Code Climate](https://codeclimate.com/github/lmrodriguezr/gfa/badges/gpa.svg)](https://codeclimate.com/github/lmrodriguezr/gfa)
+[![Test Coverage](https://codeclimate.com/github/lmrodriguezr/gfa/badges/coverage.svg)](https://codeclimate.com/github/lmrodriguezr/gfa/coverage)
+[![Build Status](https://travis-ci.org/lmrodriguezr/gfa.svg?branch=master)](https://travis-ci.org/lmrodriguezr/gfa)
+[![Gem Version](https://badge.fury.io/rb/gfa.svg)](https://badge.fury.io/rb/gfa)
+
 
 # Graphical Fragment Assembly (GFA) for Ruby
 
@@ -26,6 +30,7 @@ end
 fh.close
 ```
 
+
 ## Saving GFA
 
 After altering a GFA object, you can simply save it in a file as:
@@ -41,6 +46,7 @@ my_gfa.each_line do |ln|
 end
 fh.close
 ```
+
 
 ## Visualizing GFA
 
@@ -66,9 +72,17 @@ ug.write_to_graphic_file('jpg')
 ![tiny](data/tiny_undirected.jpg)
 
 
+# Installation
+
+```
+gem install gfa
+```
+
+
 # Author
 
 [Luis M. Rodriguez-R][lrr].
+
 
 # License
 

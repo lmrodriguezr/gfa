@@ -7,6 +7,8 @@ Gem::Specification.new do |s|
    s.summary     = "Graphical Fragment Assembly (GFA) for Ruby"
    s.description = "GFA is a graph representation of fragment assemblies"
 
+   s.add_dependency "rgl", "~> 0.5"
+
    # Docs + tests
    s.add_development_dependency "rake"
    s.add_development_dependency "test-unit"

@@ -20,7 +20,7 @@ class GFA::Field
    def regex ; self.class::REGEX ; end
    
    def to_s(with_type=true)
-      "#{"#{code}:" if with_type}#{value.to_s}"
+      "#{"#{code}:" if with_type}#{value}"
    end
    
    def hash

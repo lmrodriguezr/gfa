@@ -4,6 +4,7 @@ class GFA
    # Class-level
    MIN_VERSION = "1.0"
    MAX_VERSION = "1.0"
+   
    def self.load(file)
       gfa = GFA.new
       fh = File.open(file, "r")
@@ -11,15 +12,9 @@ class GFA
       fh.close
       gfa
    end
+   
    def self.supported_version?(v)
-      ver = []
-      ver << MIN_VERSION.split("\.").map{ |x| x.to_i }
-      ver << MAX_VERSION.split("\.").map{ |x| x.to_i }
-      ver << v.split("\.").map{ |x| x.to_i }
-      ver.map! do |v|
-	 (v[0]*100 + v[1])*100 + (v[2] || 0)
-      end
-      ver[2] >= ver[0] and ver[2] <= ver[1]
+      v.to_f > MIN_VERSION and v.to_f < MAX_VERSION.to_f
    end
 
    # Instance-level
@@ -39,6 +34,7 @@ class GFA
    end
    
    private
+      
       def parse_line(ln)
 	 ln.chomp!
 	 return nil if ln =~ /^\s*$/
@@ -46,4 +42,5 @@ class GFA
 	 type = Record::CODES[cols.shift.to_sym]
 	 Object.const_get("GFA::Record::#{type}").new(*cols)
       end
+
 end

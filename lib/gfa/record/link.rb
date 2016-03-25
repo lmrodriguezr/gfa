@@ -35,11 +35,16 @@ class GFA::Record::Link < GFA::Record
    private
 
       def links_from_to?(segment, orient, from)
-	 segment = segment.value if segment.is_a? GFA::Field
-	 segment = segment.name  if segment.is_a? GFA::Record::Segment
-	 orient  = orient.value  if orient.is_a?  GFA::Field
-	 segment==fields[from ? 2 : 4].value and
-	    (orient.nil? or orient==fields[from ? 3 : 5].value)
+         segment = segment_name(segment)
+         orient  = orient.value if orient.is_a? Field
+         base_k  = from ? 2 : 4
+         segment==fields[base_k].value and
+            (orient.nil? or orient==fields[base_k + 1].value)
+      end
+
+      def segment_name(segment)
+         segment.is_a?(Record::Segment) ? segment.name.value :
+            segment.is_a?(Field) ? segment.value : segment
       end
 
 end
