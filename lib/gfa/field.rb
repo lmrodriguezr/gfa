@@ -1,17 +1,15 @@
 class GFA::Field
-  
   # Class-level
-
   CODES = {
-    :A => :Char,
-    :i => :SigInt,
-    :f => :Float,
-    :Z => :String,
-    :H => :Hex,
-    :B => :NumArray
+    A: :Char,
+    i: :SigInt,
+    f: :Float,
+    Z: :String,
+    J: :Json, # Excluding new-line and tab characters
+    H: :Hex,
+    B: :NumArray
   }
   TYPES = CODES.values
-
   TYPES.each { |t| require "gfa/field/#{t.downcase}" }
 
   [:CODES, :TYPES].each do |x|

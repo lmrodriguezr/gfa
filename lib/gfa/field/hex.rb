@@ -6,5 +6,4 @@ class GFA::Field::Hex < GFA::Field
     GFA.assert_format(f, regex, "Bad #{type}")
     @value = f
   end
-
 end

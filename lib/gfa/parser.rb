@@ -1,13 +1,13 @@
-require "gfa/record"
+require 'gfa/record'
 
 class GFA
   # Class-level
-  MIN_VERSION = "1.0"
-  MAX_VERSION = "1.0"
+  MIN_VERSION = '1.0'
+  MAX_VERSION = '1.2'
    
   def self.load(file)
     gfa = GFA.new
-    fh = File.open(file, "r")
+    fh = File.open(file, 'r')
     fh.each { |ln| gfa << ln }
     fh.close
     gfa
@@ -20,17 +20,19 @@ class GFA
   # Instance-level
   def <<(obj)
     obj = parse_line(obj) unless obj.is_a? GFA::Record
-    return if obj.nil? or obj.empty?
+    return if obj.nil? || obj.empty?
     @records[obj.type] << obj
-    if obj.type==:Header and not obj.fields[:VN].nil?
+
+    if obj.type == :Header && !obj.fields[:VN].nil?
       set_gfa_version(obj.fields[:VN].value)
     end
   end
 
   def set_gfa_version(v)
     @gfa_version = v
-    raise "GFA version currently unsupported: #{v}." unless
-      GFA::supported_version? gfa_version
+    unless GFA::supported_version? gfa_version
+      raise "GFA version currently unsupported: #{v}."
+    end
   end
    
   private
@@ -41,5 +43,4 @@ class GFA
       cols = ln.split("\t")
       GFA::Record.code_class(cols.shift).new(*cols)
     end
-
 end

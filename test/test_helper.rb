@@ -1,6 +1,6 @@
-require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
+require 'simplecov'
+SimpleCov.start
 
-require "rubygems"
-require "test/unit"
-require "gfa/common"
+require 'rubygems'
+require 'test/unit'
+require 'gfa/common'

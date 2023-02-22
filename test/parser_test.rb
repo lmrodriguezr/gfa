@@ -4,7 +4,7 @@ require "gfa/parser"
 class ParserTest < Test::Unit::TestCase
    
   def test_load
-    sample_f = File.expand_path("../fixtures/sample.gfa",__FILE__)
+    sample_f = File.expand_path('../fixtures/sample.gfa', __FILE__)
     assert_respond_to(GFA, :load)
     pre_fhs  = ObjectSpace.each_object(IO).count{ |i| not i.closed? }
     sample   = GFA.load(sample_f)
@@ -20,18 +20,18 @@ class ParserTest < Test::Unit::TestCase
   
   def test_version_suppport
     gfa = GFA.new
-    assert_raise { gfa.set_gfa_version("0.9") }
-    assert_raise { gfa.set_gfa_version("1.1") }
-    assert_nothing_raised { gfa.set_gfa_version("1.0") }
+    assert_raise { gfa.set_gfa_version('0.9') }
+    assert_raise { gfa.set_gfa_version('2.1') }
+    assert_nothing_raised { gfa.set_gfa_version('1.0') }
   end
   
   def test_line_by_line
     gfa = GFA.new
     assert_respond_to(gfa, :<<)
     # Empty
-    gfa << " "
+    gfa << ' '
     assert(gfa.empty?)
-    gfa << "H"
+    gfa << 'H'
     assert(gfa.empty?)
     # Segment
     assert_equal(0, gfa.segments.size)
@@ -40,8 +40,8 @@ class ParserTest < Test::Unit::TestCase
     assert_equal(1, gfa.segments.size)
     # Version
     assert_nil(gfa.gfa_version)
-    gfa << GFA::Record::Header.new("VN:Z:1.0")
-    assert_equal("1.0", gfa.gfa_version)
+    gfa << GFA::Record::Header.new('VN:Z:1.0')
+    assert_equal('1.0', gfa.gfa_version)
   end
 
 end

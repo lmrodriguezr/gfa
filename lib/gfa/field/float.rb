@@ -6,5 +6,4 @@ class GFA::Field::Float < GFA::Field
     GFA.assert_format(f, regex, "Bad #{type}")
     @value = f.to_f
   end
-
 end

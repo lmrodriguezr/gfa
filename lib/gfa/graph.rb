@@ -1,5 +1,5 @@
-require "rgl/adjacency"
-require "rgl/implicit"
+require 'rgl/adjacency'
+require 'rgl/implicit'
 
 class GFA
    
@@ -11,7 +11,7 @@ class GFA
   #   true.
   # * :directed => bool. If false, ignores direction of the links. By defaut
   #   the same value as :orient.
-  def implicit_graph(opts={})
+  def implicit_graph(opts = {})
     rgl_implicit_graph(opts)
   end
 
@@ -19,7 +19,7 @@ class GFA
   # Generates a RGL::DirectedAdjacencyGraph or RGL::AdjacencyGraph object.
   # The +opts+ argument is a hash with the same supported key-value pairs as
   # in #implicit_graph.
-  def adjacency_graph(opts={})
+  def adjacency_graph(opts = {})
     implicit_graph(opts).to_adjacency
   end
    
@@ -27,7 +27,7 @@ class GFA
    
     def segment_names_with_orient
       segments.flat_map do |s|
-        %w[+ -].map{ |orient| GFA::GraphVertex.idx(s, orient) }
+        %w[+ -].map { |orient| GFA::GraphVertex.idx(s, orient) }
       end.to_set
     end
 
@@ -44,8 +44,8 @@ class GFA
           (opts[:orient] ? segment_names_with_orient :
                   segment_names).each(&b)
         end
-        g.adjacent_iterator do |x,b|
-          rgl_implicit_adjacent_iterator(x,b,opts)
+        g.adjacent_iterator do |x, b|
+          rgl_implicit_adjacent_iterator(x, b, opts)
         end
         g.directed = opts[:directed]
       end
@@ -62,20 +62,20 @@ class GFA
         if l.from?(x.segment, x.orient)
           orient = opts[:orient] ? l.to_orient : nil
           b.call(GFA::GraphVertex.idx(l.to, orient))
-        elsif opts[:orient] and l.to?(x.segment, orient_rc(x.orient))
+        elsif opts[:orient] && l.to?(x.segment, orient_rc(x.orient))
           orient = orient_rc(l.from_orient.value)
           b.call(GFA::GraphVertex.idx(l.from, orient))
         end
       end
     end
 
-    def orient_rc(o) o=="+" ? "-" : "+" ; end
-
+    def orient_rc(o)
+      o == '+' ? '-' : '+'
+    end
 end
 
 
 class GFA::GraphVertex # :nodoc:
-   
   # Class-level
   @@idx = {}
   def self.idx(segment, orient)
@@ -83,10 +83,10 @@ class GFA::GraphVertex # :nodoc:
     @@idx[n.to_s] ||= n
     @@idx[n.to_s]
   end
-   
+
   # Instance-level
   attr :segment, :orient
-   
+
   def initialize(segment, orient)
     @segment = segment.is_a?(GFA::Record::Segment) ? segment.name.value :
 		segment.is_a?(GFA::Field) ? segment.value : segment
@@ -96,5 +96,4 @@ class GFA::GraphVertex # :nodoc:
   def to_s
     "#{segment}#{orient}"
   end
-
 end

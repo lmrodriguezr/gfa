@@ -3,3 +3,4 @@ gfa-*.gem
 .bundle
 Gemfile.lock
 doc/*
+/coverage

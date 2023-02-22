@@ -1,29 +1,25 @@
-class GFA::Record::Link < GFA::Record
-  CODE = :L
-  REQ_FIELDS = %i[from from_orient to to_orient overlap]
+class GFA::Record::Jump < GFA::Record
+  CODE = :J
+  REQ_FIELDS = %i[from from_orient to to_orient distance]
   OPT_FIELDS = {
-    MQ: :i, # Mapping quality
-    NM: :i, # Number of mismatches/gaps
-    EC: :i, # Read count
-    FC: :i, # Fragment count
-    KC: :i, # k-mer count
-    ID: :Z  # Edge identifier
+    SC: :i  # 1 indicates indirect shortcut connections. Only 0/1 allowed.
   }
    
   REQ_FIELDS.each_index do |i|
     define_method(REQ_FIELDS[i]) { fields[i + 2] }
   end
 
-  def initialize(from, from_orient, to, to_orient, overlap, *opt_fields)
+  def initialize(from, from_orient, to, to_orient, distance, *opt_fields)
     @fields = {}
-    add_field(2, :Z, from, /^[!-)+-<>-~][!-~]*$/)
+    add_field(2, :Z, from,        /^[!-)+-<>-~][!-~]*$/)
     add_field(3, :Z, from_orient, /^+|-$/)
-    add_field(4, :Z, to, /^[!-)+-<>-~][!-~]*$/)
-    add_field(5, :Z, to_orient, /^+|-$/)
-    add_field(6, :Z, overlap, /^\*|([0-9]+[MIDNSHPX=])+$/)
+    add_field(4, :Z, to,          /^[!-)+-<>-~][!-~]*$/)
+    add_field(5, :Z, to_orient,   /^+|-$/)
+    add_field(6, :Z, distance,    /^\*|[-+]?[0-9]+$/)
     opt_fields.each { |f| add_opt_field(f, OPT_FIELDS) }
   end
 
+   
   def from?(segment, orient = nil)
     links_from_to?(segment, orient, true)
   end
