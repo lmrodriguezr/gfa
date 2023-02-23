@@ -16,7 +16,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'rgl', '~> 0.5'
 
   # Docs + tests
-  s.has_rdoc = true
   s.extra_rdoc_files << 'README.md'
   s.rdoc_options = %w(lib README.md --main README.md)
   s.rdoc_options << '--title' << s.summary
