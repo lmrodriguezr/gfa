@@ -1,17 +1,17 @@
 require 'gfa/version'
-require 'gfa/record'
+require 'gfa/record_set'
 require 'gfa/field'
 
 class GFA
   # Class-level
   def self.assert_format(value, regex, message)
-    unless value =~ regex
-      raise "#{message}: #{value}."
+    unless value =~ /^(?:#{regex})$/
+      raise "#{message}: #{value}"
     end
   end
 
   # Instance-level
-  attr :gfa_version, :records
+  attr :gfa_version, :records, :opts
 
   GFA::Record.TYPES.each do |r_type|
     plural = "#{r_type.downcase}s"
@@ -22,9 +22,12 @@ class GFA
     define_method("add_#{singular}") { |v| @records[r_type] << v }
   end
 
-  def initialize
+  def initialize(opts = {})
     @records = {}
-    GFA::Record.TYPES.each { |t| @records[t] = [] }
+    @opts = { index: true, comments: false }.merge(opts)
+    GFA::Record.TYPES.each do |t|
+      @records[t] = GFA::RecordSet.name_class(t).new(self)
+    end
   end
 
   def empty?

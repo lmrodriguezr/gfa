@@ -4,6 +4,8 @@ class GFA::Record::Header < GFA::Record
   OPT_FIELDS = {
     VN: :Z # Version number
   }
+
+  OPT_FIELDS.each_key { |i| define_method(i) { fields[i] } }
    
   def initialize(*opt_fields)
     @fields = {}

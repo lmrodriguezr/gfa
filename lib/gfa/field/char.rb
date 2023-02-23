@@ -1,6 +1,7 @@
 class GFA::Field::Char < GFA::Field
   CODE = :A
-  REGEX = /^[!-~]$/
+  REGEX = /[!-~]/
+  NATIVE_FUN = :to_s
 
   def initialize(f)
     GFA.assert_format(f, regex, "Bad #{type}")

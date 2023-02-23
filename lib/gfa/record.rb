@@ -15,7 +15,7 @@ class GFA::Record
   TYPES = CODES.values
   TYPES.each { |t| require "gfa/record/#{t.downcase}" }
 
-  [:CODES, :REQ_FIELDS, :OPT_FIELDS, :TYPES].each do |x|
+  %i[CODES REQ_FIELDS OPT_FIELDS TYPES].each do |x|
     define_singleton_method(x) { const_get(x) }
   end
 
@@ -29,18 +29,32 @@ class GFA::Record
     const_get(name)
   end
 
+  def self.[](string)
+    split = string[0] == '#' ? ['', 2] : ["\t", 0]
+    code, *values = string.chomp.split(*split)
+    code_class(code).new(*values)
+  end
+
   # Instance-level
 
   attr :fields
 
-  def [](k) fields[k] ; end
-   
-  def type ; CODES[code] ; end
-   
-  def code ; self.class.const_get(:CODE) ; end
-   
-  def empty? ; fields.empty? ; end
-   
+  def [](k)
+    fields[k]
+  end
+
+  def type
+    CODES[code]
+  end
+
+  def code
+    self.class.const_get(:CODE)
+  end
+
+  def empty?
+    fields.empty?
+  end
+
   def to_s
     o = [code.to_s]
     self.class.REQ_FIELDS.each_index do |i|
@@ -52,7 +66,7 @@ class GFA::Record
     end
     o.join("\t")
   end
-   
+
   def hash
     { code => fields }.hash
   end
@@ -64,19 +78,19 @@ class GFA::Record
   alias == eql?
 
   private
-      
+
     def add_field(f_tag, f_type, f_value, format = nil)
       unless format.nil?
         msg = (f_tag.is_a?(Integer) ? "column #{f_tag}" : "#{f_tag} field")
         GFA.assert_format(f_value, format, "Bad #{type} #{msg}")
       end
 
-      @fields[ f_tag ] = GFA::Field.code_class(f_type).new(f_value)
+      @fields[f_tag] = GFA::Field.code_class(f_type).new(f_value)
     end
-      
+
     def add_opt_field(f, known)
       m = /^([A-Za-z]+):([A-Za-z]+):(.*)$/.match(f)
-      raise "Cannot parse field: '#{f}'." unless m
+      raise "Cannot parse field: '#{f}'" unless m
 
       f_tag = m[1].to_sym
       f_type = m[2].to_sym

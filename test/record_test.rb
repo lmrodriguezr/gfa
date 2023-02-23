@@ -17,6 +17,13 @@ class RecordTest < Test::Unit::TestCase
     assert_equal("P\ta\tb\t*",  $rec_p.to_s)
   end
 
+  def test_init_by_string
+    p = GFA::Record["P\ta\tb\t*"]
+    assert_equal('a', p.path_name&.value)
+    c = GFA::Record["# doink!\n"]
+    assert_equal(' doink!', c.comment&.value)
+  end
+
   def test_hash
     other_h = GFA::Record::Header.new("VN:Z:1.0")
     assert_equal($rec_h.hash, other_h.hash)

@@ -58,12 +58,12 @@ Any `GFA` object can be exported as an [`RGL`][rgl] graph using the methods
 [tiny.gfa](https://github.com/lmrodriguezr/gfa/raw/master/data/tiny.gfa):
 
 ```ruby
-require "gfa"
-require "rgl/dot"
+require 'gfa'
+require 'rgl/dot'
 
-my_gfa = GFA.load("data/tiny.gfa")
+my_gfa = GFA.load('data/tiny.gfa')
 dg = my_gfa.implicit_graph
-dg.write_to_graphic_file("jpg")
+dg.write_to_graphic_file('jpg')
 ```
 
 ![tiny_dg](https://github.com/lmrodriguezr/gfa/raw/master/data/tiny.jpg)
@@ -72,8 +72,8 @@ If you don't care about orientation, you can also build an undirected graph
 without orientation:
 
 ```ruby
-ug = my_gfa.implicit_graph(orient:false)
-ug.write_to_graphic_file("jpg")
+ug = my_gfa.implicit_graph(orient: false)
+ug.write_to_graphic_file('jpg')
 ```
 
 ![tiny_ug](https://github.com/lmrodriguezr/gfa/raw/master/data/tiny_undirected.jpg)
@@ -88,7 +88,7 @@ gem install gfa
 Or add the following line to your Gemfile:
 
 ```ruby
-gem "gfa"
+gem 'gfa'
 ```
 
 and run `bundle install` from your shell.

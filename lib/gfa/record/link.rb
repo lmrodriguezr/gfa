@@ -9,25 +9,26 @@ class GFA::Record::Link < GFA::Record
     KC: :i, # k-mer count
     ID: :Z  # Edge identifier
   }
-   
+
   REQ_FIELDS.each_index do |i|
     define_method(REQ_FIELDS[i]) { fields[i + 2] }
   end
+  OPT_FIELDS.each_key { |i| define_method(i) { fields[i] } }
 
   def initialize(from, from_orient, to, to_orient, overlap, *opt_fields)
     @fields = {}
-    add_field(2, :Z, from, /^[!-)+-<>-~][!-~]*$/)
-    add_field(3, :Z, from_orient, /^+|-$/)
-    add_field(4, :Z, to, /^[!-)+-<>-~][!-~]*$/)
-    add_field(5, :Z, to_orient, /^+|-$/)
-    add_field(6, :Z, overlap, /^\*|([0-9]+[MIDNSHPX=])+$/)
+    add_field(2, :Z, from,        /[!-)+-<>-~][!-~]*/)
+    add_field(3, :Z, from_orient, /[+-]/)
+    add_field(4, :Z, to,          /[!-)+-<>-~][!-~]*/)
+    add_field(5, :Z, to_orient,   /[+-]/)
+    add_field(6, :Z, overlap,     /\*|([0-9]+[MIDNSHPX=])+/)
     opt_fields.each { |f| add_opt_field(f, OPT_FIELDS) }
   end
 
   def from?(segment, orient = nil)
     links_from_to?(segment, orient, true)
   end
-   
+
   def to?(segment, orient = nil)
     links_from_to?(segment, orient, false)
   end

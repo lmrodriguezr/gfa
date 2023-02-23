@@ -4,15 +4,20 @@ class GFA
   # Class-level
   MIN_VERSION = '1.0'
   MAX_VERSION = '1.2'
-   
-  def self.load(file)
-    gfa = GFA.new
+
+  ##
+  # Load a GFA object from a +gfa+ file with options +opts+:
+  # - index: If the records should be indexed as loaded (default: true)
+  # - comments: If the comment records should be saved (default: false)
+  def self.load(file, opts = {})
+    gfa = GFA.new(opts)
     fh = File.open(file, 'r')
     fh.each { |ln| gfa << ln }
-    fh.close
     gfa
+  ensure
+    fh&.close
   end
-   
+
   def self.supported_version?(v)
     v.to_f >= MIN_VERSION.to_f and v.to_f <= MAX_VERSION.to_f
   end
@@ -23,24 +28,27 @@ class GFA
     return if obj.nil? || obj.empty?
     @records[obj.type] << obj
 
-    if obj.type == :Header && !obj.fields[:VN].nil?
-      set_gfa_version(obj.fields[:VN].value)
+    if obj.type == :Header && !obj.VN.nil?
+      set_gfa_version(obj.VN.value)
     end
   end
 
   def set_gfa_version(v)
-    @gfa_version = v
-    unless GFA::supported_version? gfa_version
-      raise "GFA version currently unsupported: #{v}."
+    v = v.value if v.is_a? GFA::Field
+    unless GFA::supported_version? v
+      raise "GFA version currently unsupported: #{v}"
     end
+
+    @gfa_version = v
   end
-   
+
   private
-      
-    def parse_line(ln)
-      ln.chomp!
-      return nil if ln =~ /^\s*$/
-      cols = ln.split("\t")
-      GFA::Record.code_class(cols.shift).new(*cols)
+
+    def parse_line(string)
+      string = string.chomp
+      return nil if string =~ /^\s*$/
+      return nil if !opts[:comments] && string[0] == '#'
+
+      GFA::Record[string]
     end
 end

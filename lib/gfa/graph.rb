@@ -2,7 +2,6 @@ require 'rgl/adjacency'
 require 'rgl/implicit'
 
 class GFA
-   
   ##
   # Generates a RGL::ImplicitGraph object describing the links in the GFA.
   # The +opts+ argument is a hash with any of the following key-value pairs:
@@ -57,7 +56,7 @@ class GFA
       opts
     end
 
-    def rgl_implicit_adjacent_iterator(x,b,opts)
+    def rgl_implicit_adjacent_iterator(x, b, opts)
       links.each do |l|
         if l.from?(x.segment, x.orient)
           orient = opts[:orient] ? l.to_orient : nil
