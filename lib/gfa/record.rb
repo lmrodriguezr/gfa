@@ -30,6 +30,8 @@ class GFA::Record
   end
 
   def self.[](string)
+    return nil if string.nil? || string =~ /^\s*$/
+
     split = string[0] == '#' ? ['', 2] : ["\t", 0]
     code, *values = string.chomp.split(*split)
     code_class(code).new(*values)
@@ -65,6 +67,10 @@ class GFA::Record
       o << "#{k}:#{v}"
     end
     o.join("\t")
+  end
+
+  def dup
+    self.class[to_s]
   end
 
   def hash

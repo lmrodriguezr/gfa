@@ -14,8 +14,8 @@ class GFA
   attr :gfa_version, :records, :opts
 
   GFA::Record.TYPES.each do |r_type|
-    plural = "#{r_type.downcase}s"
     singular = "#{r_type.downcase}"
+    plural = "#{singular}s"
 
     define_method(plural) { records[r_type] }
     define_method(singular) { |k| records[r_type][k] }
@@ -24,7 +24,7 @@ class GFA
 
   def initialize(opts = {})
     @records = {}
-    @opts = { index: true, comments: false }.merge(opts)
+    @opts = { index: true, index_id: false, comments: false }.merge(opts)
     GFA::Record.TYPES.each do |t|
       @records[t] = GFA::RecordSet.name_class(t).new(self)
     end
@@ -38,5 +38,27 @@ class GFA
     records == gfa.records
   end
 
-  alias == eql?
+  def ==(gfa)
+    eql?(gfa)
+  end
+
+  def size
+    records.values.map(&:size).inject(0, :+)
+  end
+
+  def merge!(gfa)
+    raise "Unsupported object: #{gfa}" unless gfa.is_a? GFA
+
+    GFA::Record.TYPES.each do |t|
+      @records[t].merge!(gfa.records[t])
+    end
+  end
+
+  def indexed?
+    records.values.all?(&:indexed?)
+  end
+
+  def rebuild_index!
+    @records.each_value(&:rebuild_index!)
+  end
 end

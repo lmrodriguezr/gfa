@@ -4,3 +4,4 @@ gfa-*.gem
 Gemfile.lock
 doc/*
 /coverage
+/local

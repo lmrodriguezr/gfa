@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.description = 'GFA is a graph representation of fragment assemblies'
 
   s.files = Dir[
-    'lib/**/*.rb', 'test/**/*.rb',
+    'lib/**/*.rb', 'test/**/*.rb', 'bin/*',
     'Gemfile', 'Rakefile', 'README.md', 'LICENSE'
   ]
 

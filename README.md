@@ -7,28 +7,35 @@
 
 This implementation follows the specifications of [GFA-spec][].
 
+To load the library:
+
+```ruby
+require 'gfa'
+```
 
 ## Parsing GFA
 
 To parse a file in GFA format:
 
 ```ruby
-require 'gfa'
-
 my_gfa = GFA.load('assembly.gfa')
+```
+
+For large GFA files, you can also parse them in parallel:
+
+```ruby
+my_gfa = GFA.load_parallel('large-graph.gfa', 4)
 ```
 
 To load GFA strings line-by-line:
 
 ```ruby
-require 'gfa'
-
 my_gfa = GFA.new
-fh = File.open('assembly.gfa', 'r')
-fh.each do |ln|
-  my_gfa << ln
+File.open('assembly.gfa', 'r') do |fh|
+  fh.each do |ln|
+    my_gfa << ln
+  end
 end
-fh.close
 ```
 
 
@@ -58,7 +65,6 @@ Any `GFA` object can be exported as an [`RGL`][rgl] graph using the methods
 [tiny.gfa](https://github.com/lmrodriguezr/gfa/raw/master/data/tiny.gfa):
 
 ```ruby
-require 'gfa'
 require 'rgl/dot'
 
 my_gfa = GFA.load('data/tiny.gfa')
@@ -91,8 +97,6 @@ Or add the following line to your Gemfile:
 gem 'gfa'
 ```
 
-and run `bundle install` from your shell.
-
 
 # Author
 
@@ -103,6 +107,6 @@ and run `bundle install` from your shell.
 
 [Artistic License 2.0](LICENSE).
 
-[GFA-spec]: https://github.com/pmelsted/GFA-spec
+[GFA-spec]: https://github.com/GFA-spec/GFA-spec
 [lrr]: https://rodriguez-r.com/
 [rgl]: https://github.com/monora/rgl

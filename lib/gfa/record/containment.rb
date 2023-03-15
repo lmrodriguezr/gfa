@@ -1,3 +1,5 @@
+require 'gfa/record/has_from_to'
+
 class GFA::Record::Containment < GFA::Record
   CODE = :C
   REQ_FIELDS = %i[from from_orient to to_orient pos overlap]
@@ -11,6 +13,8 @@ class GFA::Record::Containment < GFA::Record
     define_method(REQ_FIELDS[i]) { fields[i + 2] }
   end
   OPT_FIELDS.each_key { |i| define_method(i) { fields[i] } }
+
+  include GFA::Record::HasFromTo
 
   alias container from
   alias container_orient from_orient

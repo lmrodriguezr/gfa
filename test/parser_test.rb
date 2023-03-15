@@ -49,8 +49,10 @@ class ParserTest < Test::Unit::TestCase
     assert(sample.path('first').is_a?(GFA::Record))
     assert(sample.paths['first'].is_a?(GFA::Record))
     assert_equal('first', sample.path('first')[2]&.value)
+    assert(sample.indexed?)
     sample = GFA.load(path, index: false)
     assert_nil(sample.path('first'))
+    assert(!sample.indexed?)
   end
   
   def test_version_suppport

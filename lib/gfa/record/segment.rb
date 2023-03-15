@@ -8,8 +8,11 @@ class GFA::Record::Segment < GFA::Record
     KC: :i, # k-mer count
     SH: :H, # SHA-256 checksum of the sequence
     UR: :Z, # URI or local file-system path of the sequence
-    # Non-cannonical
-    DP: :f  # (From SAM)
+    # Non-cannonical but uppercase (thus, reserved)
+    DP: :f, # SAM
+    SN: :Z, # rGFA: Name of stable sequence from which the segment is derived
+    SO: :i, # rGFA: Offset on the stable sequence
+    SR: :i  # rGFA: Rank. 0 if on a linear reference genome; >0 otherwise
   }
 
   REQ_FIELDS.each_index do |i|

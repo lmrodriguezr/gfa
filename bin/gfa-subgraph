@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+# @package MiGA
+# @license Artistic-2.0
+
+$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../../lib', File.realpath(__FILE__))
+
+require 'gfa'
+
+input, output, degree, segments, threads = ARGV
+
+unless segments
+  $stderr.puts <<~HELP
+    Select a set of segments and include only elements of the GFA linked to
+    those segments (directly or indirectly)
+
+    gfa-subgraph <input> <output> <degree> <segments> [<threads>]
+
+    <input>      Input GFA file to read
+    <output>     Output GFA file to write
+    <degree>     Maximum degree of separation between the segment set and any
+                 other included segments. If 0, only segments are included.
+                 If 1, only the target segments, records linking to them, and
+                 segments linked by those records. Any integer > 1 includes
+                 additional expansion rounds for those linked segments.
+    <segments>   Comma-delimited list of segment segments
+    <threads>    If passed, parallelize process with these many threads
+  HELP
+  exit(1)
+end
+
+$stderr.puts "Loading GFA: #{input}"
+gfa = GFA.load_parallel(input, (threads || 1).to_i)
+
+$stderr.puts 'Subsetting graph'
+gfa = gfa.subgraph(segments.split(','), degree: degree.to_i)
+
+$stderr.puts "Saving GFA: #{output}"
+gfa.save(output)
+

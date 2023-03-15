@@ -8,9 +8,9 @@ class GFA
   end
 
   def each_line(&blk)
-    set_version_header('1.1') if gfa_version.nil?
+    set_version_header('1.2') if gfa_version.nil?
     GFA::Record.TYPES.each do |r_type|
-      records[r_type].each do |record|
+      records[r_type].set.each do |record|
         blk[record.to_s]
       end
     end
@@ -23,7 +23,7 @@ class GFA
   end
 
   def unset_version
-    @records[:Header].delete_if { |o| !o.fields[:VN].nil? }
+    headers.set.delete_if { |o| !o.fields[:VN].nil? }
     @gfa_version = nil
   end
 

@@ -23,12 +23,12 @@ class GFA::RecordSet
 
   # Instance-level
 
-  attr_reader :set, :gfa
+  attr_reader :set, :index, :gfa
 
-  def initialize(gfa)
+  def initialize(gfa = nil)
     @set   = []
     @index = {}
-    @gfa   = gfa
+    @gfa   = gfa || GFA.new
   end
 
   def [](k)
@@ -69,25 +69,37 @@ class GFA::RecordSet
     raise "Wrong type of record: #{v.type}" if v.type != type
 
     @set << v
-    index(v)
+    index!(v)
+  end
+
+  def indexed?
+    (empty? || !index_field) ? gfa.opts[:index] : !index.empty?
+  end
+
+  def rebuild_index!
+    @index = {}
+    set.each { |v| index!(v) }
   end
 
   def index_id(v)
     v[index_field]&.value
   end
 
-  def index(v)
+  def index!(v)
     save_index(index_id(v), v) if index_field
 
     # Whenever present, index also by ID
-    save_index(v[:ID].value, v) if v[:ID] && v[:ID].value =~ index_id(v)
+    if gfa.opts[:index_id] && v[:ID] && v[:ID].value =~ index_id(v)
+      save_index(v[:ID].value, v)
+    end
   end
 
   def save_index(k, v)
     return unless gfa.opts[:index] && k
 
     if @index[k]
-      warn "#{type} already registered with field #{index_field}: #{k}"
+      f = index_field.is_a?(Integer) ? '' : "#{index_field}: "
+      raise "#{type} already registered: #{f}#{k}"
     end
     @index[k] = v
   end
@@ -95,5 +107,15 @@ class GFA::RecordSet
   def find_index(k)
     k = k.value if k.is_a? GFA::Field
     @index[k]
+  end
+
+  def merge!(record_set)
+    raise "Not a record set" unless record_set.is_a?(GFA::RecordSet)
+    if record_set.type != type
+      raise "Wrong type of record set: #{record_set.type}"
+    end
+
+    record_set.set.each { |i| @set << i }
+    record_set.index.each { |k, v| save_index(k, v) }
   end
 end

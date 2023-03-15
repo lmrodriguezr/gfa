@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+
+# @package MiGA
+# @license Artistic-2.0
+
+$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../../lib', File.realpath(__FILE__))
+
+require 'gfa'
+
+input_gfa, input_gaf, output, degree, threads = ARGV
+
+unless degree
+  $stderr.puts <<~HELP
+    gfa-add-gaf <input-gfa> <input-gaf> <output> <degree> [<pref> [<threads>]]
+
+    <input-gfa>  Input GFA file to read
+    <input-gaf>  Input GAF file to read
+    <output>     Output GFA file to write
+    <degree>     Maximum degree of separation between the segment set in the GAF
+                 and any other included segments. If 0, only segments are
+                 included. If 1, only the target segments, records linking to
+                 them, and segments linked by those records. Any integer > 1
+                 includes additional expansion rounds for those linked segments.
+                 Use -1 to include the complete original GAF without subsetting.
+    <pref>       A prefix to name all recorded paths
+                 By default: Based on the GAF file name
+    <threads>    If passed, parallelize process with these many threads
+  HELP
+  exit(1)
+end
+
+$stderr.puts "Loading GFA: #{input_gfa}"
+gfa = GFA.load_parallel(input_gfa, (threads || 1).to_i)
+
+$stderr.puts "Loading GAF: #{input_gaf}"
+$stderr.puts "- Minimum identity: #{0.95}"
+pref ||= File.basename(input_gaf, '.gaf').gsub(/[^!-)+-<>-~]/, '_')
+segments  = []
+File.open(input_gaf, 'r') do |fh|
+  fh.each do |ln|
+    row = ln.chomp.split("\t")
+    opt = Hash[row[12..].map { |i| i.split(':', 2) }]
+    opt.each { |k, v| opt[k] = GFA::Field[v] }
+    next if opt['id'] && opt['id'].value < 0.95
+
+    gaf_path = row[5]
+    seg_names = []
+    gaf_path.scan(/[><]?[^><]+/).each do |seg|
+      seg_orient = seg.match?(/^</) ? '-' : '+'
+      seg_name   = seg.sub(/^[><]/, '')
+      seg_names << "#{seg_name}#{seg_orient}"
+      segments << seg_name unless segments.include?(seg_name)
+    end
+    gfa << GFA::Record::Path.new(
+      "#{pref}_#{$.}", seg_names.join(','), opt['cg']&.value || '*'
+    )
+  end
+end
+$stderr.puts "- Found #{segments.size} linked segments"
+
+degree = degree.to_i
+if degree >= 0
+  $stderr.puts 'Subsetting graph'
+  gfa = gfa.subgraph(segments, degree: degree)
+end
+
+$stderr.puts "Saving GFA: #{output}"
+gfa.save(output)
+
