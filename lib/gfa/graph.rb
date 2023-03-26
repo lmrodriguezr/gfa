@@ -110,9 +110,9 @@ class GFA
     # Links, Containments, Jumps (from, to) and Paths (segment_names)
     linking = []
     eval_set = _ignore == 0 ? segments.set : segments.set[_ignore..]
-    edges.delete_if do |record|
-      if eval_set.any? { |segment| record.include? segment }
-        linking << record
+    edges.delete_if do |edge|
+      if eval_set.any? { |segment| edge.include? segment }
+        linking << edge
         true  # Remove from the edge set to speed up future recursions
       else
         false # Keep it, possibly linking future recursions 

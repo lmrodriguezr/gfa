@@ -61,4 +61,10 @@ class GFA
   def rebuild_index!
     @records.each_value(&:rebuild_index!)
   end
+
+  ##
+  # Computes the sum of all individual segment lengths
+  def total_length
+    segments.total_length
+  end
 end

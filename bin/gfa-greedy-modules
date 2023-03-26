@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+
+# @package MiGA
+# @license Artistic-2.0
+
+$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../../lib', File.realpath(__FILE__))
+
+require 'gfa'
+
+input, base, min_len, threads = ARGV
+
+unless base
+  $stderr.puts <<~HELP
+    Split a GFA into multiple independent GFA files that have no links between
+    them by greedily identifying all individual modules in the graph
+
+    gfa-greedy-modules <input> <base> [<min_len> [<threads>]]
+
+    <input>      Input GFA file to read
+    <base>       Prefix of the output GFA files to write
+    <min_len>    Minimum length (in bp) to report a module
+                 By default: 0 (all modules are reported)
+    <threads>    If passed, parallelize process with these many threads
+  HELP
+  exit(1)
+end
+
+$stderr.puts "Loading GFA: #{input}"
+gfa = GFA.load_parallel(input, (threads || 1).to_i)
+
+$stderr.puts 'Splitting graph into modules'
+gfas = gfa.split_modules
+
+min_len = min_len.to_i
+if min_len > 0
+  $stderr.puts 'Filtering out small modules'
+  gfas.select! { |gfa| gfa.total_length > min_len }
+end
+
+if gfas.empty?
+  $stderr.puts "No modules found"
+else
+  $stderr.puts "Saving #{gfas.size} GFA files: #{base}.*"
+  int_len = Math.log10(gfas.size).ceil
+  gfas.each_with_index do |gfa, k|
+    gfa.save("%s.%0#{int_len}i.gfa" % [base, k])
+  end
+end
+

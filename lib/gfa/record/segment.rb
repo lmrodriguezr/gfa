@@ -26,4 +26,10 @@ class GFA::Record::Segment < GFA::Record
     add_field(3, :Z, sequence, /\*|[A-Za-z=.]+/)
     opt_fields.each { |f| add_opt_field(f, OPT_FIELDS) }
   end
+
+  ##
+  # Returns the length of the sequence represented in this segment
+  def length
+    sequence.value.length
+  end
 end
