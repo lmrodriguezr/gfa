@@ -18,11 +18,13 @@ unless degree
     <input-gaf>  Input GAF file to read
     <output>     Output GFA file to write
     <degree>     Maximum degree of separation between the segment set in the GAF
-                 and any other included segments. If 0, only segments are
-                 included. If 1, only the target segments, records linking to
-                 them, and segments linked by those records. Any integer > 1
-                 includes additional expansion rounds for those linked segments.
-                 Use -1 to include the complete original GAF without subsetting.
+                 and any other segments included in the output GFA.
+                 - -1: include the complete original GAF without subsetting.
+                 - 0: only segments in the GAF are included.
+                 - 1: only the target segments in the GAF, records linking to
+                   them, and segments linked by those records are included.
+                 - Any integer > 1: include additional expansion rounds for
+                   those linked segments.
     <pref>       A prefix to name all recorded paths
                  By default: Based on the GAF file name
     <threads>    If passed, parallelize process with these many threads

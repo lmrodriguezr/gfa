@@ -146,7 +146,7 @@ class GFA
 
   def internally_linking_records(segments, edges)
     $stderr.puts '- Gathering internally linking records'
-    segments = Hash[segments.set.map { |i| [i.name.value, true]}]
+    segments = Hash[segments.map { |i| [i.name.value, true]}]
     edges.select { |record| record.segment_names_a.all? { |s| segments[s] } }
   end
 
