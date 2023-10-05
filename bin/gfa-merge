@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+
+# @package MiGA
+# @license Artistic-2.0
+
+$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../../lib', File.realpath(__FILE__))
+
+require 'gfa'
+
+output = ARGV.shift
+input  = ARGV
+
+if input.empty?
+  $stderr.puts <<~HELP
+    Combine several GFAs into a single GFA. Requires uniqueness of element names
+
+    gfa-merge <output> <input...>
+
+    <output>     Output GFA file to be created
+    <input...>   List of input GFA files to read
+  HELP
+  exit(1)
+end
+
+gfa = GFA.new
+input.each do |i|
+  $stderr.puts "Merging GFA: #{i}"
+  gfa.merge! GFA.load(i)
+end
+
+$stderr.puts "Saving GFA: #{output}"
+gfa.save(output)
+

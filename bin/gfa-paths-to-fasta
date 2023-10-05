@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+# @package MiGA
+# @license Artistic-2.0
+
+$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../../lib', File.realpath(__FILE__))
+
+require 'gfa'
+
+input, output, threads = ARGV
+
+unless output
+  $stderr.puts <<~HELP
+    Extract the sequences of the paths from a GFA to FastA file
+
+    gfa-merge <input> <output> [<threads>]
+
+    <input>      Input GFA file to read
+    <output>     Output FastA file to be created
+    <threads>    If passed, parallelize process with these many threads
+  HELP
+  exit(1)
+end
+
+$stderr.puts "Loading GFA: #{input}"
+gfa = GFA.load_parallel(input, (threads || 1).to_i)
+
+

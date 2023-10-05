@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+# @package MiGA
+# @license Artistic-2.0
+
+$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../../lib', File.realpath(__FILE__))
+
+require 'gfa'
+
+input, threads = ARGV
+
+unless input
+  $stderr.puts <<~HELP
+    Calculate the average sequencing depth of all segments in the GFA
+    weighted by the segment lengths
+
+    gfa-mean-depth <input> [<threads>]
+
+    <input>      Input GFA file to read
+    <threads>    If passed, parallelize process with these many threads
+  HELP
+  exit(1)
+end
+
+$stderr.puts "Loading GFA: #{input}"
+gfa = GFA.load_parallel(input, (threads || 1).to_i)
+
+$stderr.puts 'Calculating average depth'
+n = gfa.total_length
+avg =
+  gfa.segments.set.map do |segment|
+    raise "Some segments are missing depth data" unless segment.DP
+    segment.DP.value * segment.length / n
+  end.inject(:+)
+puts avg
+

@@ -67,4 +67,17 @@ class GFA
   def total_length
     segments.total_length
   end
+
+  ##
+  # Adds the entrie of +gfa+ to itself
+  def merge!(gfa)
+    records.each { |k, v| v.merge!(gfa.records[k]) }
+    self
+  end
+
+  ##
+  # Creates a new GFA based on itself and appends all entries in +gfa+
+  def merge(gfa)
+    GFA.new(opts).merge!(self).merge!(gfa)
+  end
 end
