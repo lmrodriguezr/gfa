@@ -8,7 +8,7 @@ $LOAD_PATH.push File.expand_path('../../lib', File.realpath(__FILE__))
 
 require 'gfa'
 
-input_gfa, input_gaf, output, degree, threads = ARGV
+input_gfa, input_gaf, output, degree, pref, threads = ARGV
 
 unless degree
   $stderr.puts <<~HELP
