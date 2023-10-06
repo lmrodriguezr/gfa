@@ -26,4 +26,11 @@ end
 $stderr.puts "Loading GFA: #{input}"
 gfa = GFA.load_parallel(input, (threads || 1).to_i)
 
+$stderr.puts "Saving path sequences: #{output}"
+File.open(output, 'w') do |fasta|
+  gfa.paths.set.each do |path|
+    fasta.puts '>%s' % path.path_name.value
+    fasta.puts path.sequence(gfa)
+  end
+end
 

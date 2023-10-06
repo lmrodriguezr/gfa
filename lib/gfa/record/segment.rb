@@ -32,4 +32,12 @@ class GFA::Record::Segment < GFA::Record
   def length
     sequence.value.length
   end
+
+  ##
+  # Returns the reverse-complement of the sequence (as a Z field)
+  def rc
+    GFA::Field::String.new(
+      sequence.value.upcase.reverse.tr('ACGTURYSWKMBDHVN', 'TGCAAYRSWMKVHDBN')
+    )
+  end
 end
