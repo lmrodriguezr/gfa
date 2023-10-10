@@ -8,29 +8,42 @@ $LOAD_PATH.push File.expand_path('../../lib', File.realpath(__FILE__))
 
 require 'gfa'
 
-input, output, threads = ARGV
+input, output, threads, orphan = ARGV
 
 unless output
   $stderr.puts <<~HELP
     Extract the sequences of the paths from a GFA to FastA file
 
-    gfa-merge <input> <output> [<threads>]
+    gfa-merge <input> <output> [<threads> [<orphan>]]
 
     <input>      Input GFA file to read
     <output>     Output FastA file to be created
     <threads>    If passed, parallelize process with these many threads
+    <orphan>     If set to 'yes', it also outputs the sequences of all
+                 segments that are not included in any path
   HELP
   exit(1)
 end
 
 $stderr.puts "Loading GFA: #{input}"
+orphan ||= 'no'
 gfa = GFA.load_parallel(input, (threads || 1).to_i)
 
 $stderr.puts "Saving path sequences: #{output}"
 File.open(output, 'w') do |fasta|
+  in_path = {}
   gfa.paths.set.each do |path|
     fasta.puts '>%s' % path.path_name.value
     fasta.puts path.sequence(gfa)
+    path.segment_names_a.each { |i| in_path[i] = true }
+  end
+
+  if orphan == 'yes'
+    gfa.segments.set.each do |segment|
+      next if in_path[segment.name.value]
+      fasta.puts '>S:%s' % segment.name.value
+      fasta.puts segment.sequence.value
+    end
   end
 end
 
