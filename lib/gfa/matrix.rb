@@ -62,10 +62,10 @@ class GFA::Matrix
   def index(row = nil, col = nil)
     if row.nil? && col.nil?
       # All values
-      (0 .. values.size - 1) # .to_a
+      (0 .. values.size - 1).to_a
     elsif row.nil?
       # Entire column
-      (col_offset(col) .. col_offset(col) + rows - 1) # .to_a
+      (col_offset(col) .. col_offset(col) + rows - 1).to_a
     elsif col.nil?
       # Entire row
       ric = row_in_column(row)
