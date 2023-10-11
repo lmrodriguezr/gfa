@@ -23,9 +23,35 @@ class GFA
   end
 
   ##
+  # Calculate and store internally a matrix representing all edges.
+  def calculate_edge_matrix!
+    $stderr.puts '- Building edge matrix'
+    @edge_matrix = GFA::Matrix.new(segments.size, segments.size)
+    self.class.advance_bar(all_edges.size)
+    all_edges.each do |edge|
+      self.class.advance
+      idx = edge.segments(self).map { |i| segments.position(i) }
+      idx.each do |i|
+        idx.each do |j|
+          @edge_matrix[i, j] = true unless i == j
+        end
+      end
+    end
+    @edge_matrix
+  end
+
+  ##
+  # Returns the matrix representing all edges
+  def edge_matrix
+    @edge_matrix or calculate_edge_matrix!
+  end
+
+  ##
   # Extracts the subset of records associated to +segments+, which is an Array
-  # with values of any class in: Integer (segment index),
-  # String or GFA::Field::String (segment names), or GFA::Record::Segment.
+  # with values of any class in:
+  # - Integer: segment index,
+  # - String or GFA::Field::String: segment names, or
+  # - GFA::Record::Segment: the actual segments themselves
   #
   # +degree+ indicates the maximum degree of separation between the original
   # segment set and any additional segments. Use 0 to include only the segments
@@ -63,8 +89,7 @@ class GFA
     segments.each { |segment| gfa << segment }
 
     # Expand graph
-    linking, edges = linking_records(gfa.segments, degree: degree)
-    linking += internally_linking_records(segments, edges)
+    linking = linking_records(gfa.segments, degree: degree)
     linking.each { |record| gfa << record }
 
     # Return
@@ -84,70 +109,54 @@ class GFA
   # of the +segments+ set (assumes they have already been evaluated). This is
   # only used for internal heuristics
   #
-  # Returns an Array of with two elements:
-  # 0. An array of GFA::Record objects with all the identified linking records
-  # 1. An array of GFA::Record objects with all edges that were not identified
+  # Returns an array of GFA::Record objects with all the identified linking
+  # records (edges)
   #
   # IMPORTANT NOTE 1: The object +segments+ will be modified to include all
   # linked segments. If you don't want this behaviour, please make sure to pass
   # a duplicate of the object instead.
-  #
-  # IMPORTANT NOTE 2: The list of linking records may not comprehensively
-  # include all records linking the identified expanded segment set. To ensure
-  # a consistent set is identified, use:
-  # linking, edges = gfa.linking_records(segments)
-  # linking += gfa.internally_linking_records(segments, edges)
-  # 
-  def linking_records(segments, degree: 1, edges: nil, _ignore: 0)
+  def linking_records(segments, degree: 1)
     unless segments.is_a? GFA::RecordSet::SegmentSet
       raise "Unrecognised class: #{segments.class}"
     end
 
-    # Gather edges to evaluate
-    edges ||= all_edges
-    return [[], edges] if degree <= 0
+    return [] if degree <= 0
 
-    # Links, Containments, Jumps (from, to) and Paths (segment_names)
-    linking = []
-    eval_set = _ignore == 0 ? segments.set : segments.set[_ignore..]
-    edges.delete_if do |edge|
-      if eval_set.any? { |segment| edge.include? segment }
-        linking << edge
-        true  # Remove from the edge set to speed up future recursions
-      else
-        false # Keep it, possibly linking future recursions 
-      end
-    end
-
-    # Recurse and return
-    if degree >= 1
-      pre = segments.size
-
-      # Add additional linked segments
-      linking.each do |record|
-        record.segments(self).each do |other_seg|
-          segments << other_seg unless segments[other_seg.name]
+    edge_matrix # Just to trigger matrix calculation
+    degree.times do |round|
+      $stderr.puts "- Expansion round #{round + 1}"
+      self.class.advance_bar(segments.size)
+      pre_expansion = segments.size
+      new_segments = []
+      segments.set.each do |segment|
+        self.class.advance
+        idx = self.segments.position(segment)
+        edge_matrix[nil, idx].each_with_index do |edge, target_k|
+          new_segments << target_k if edge
         end
       end
-
-      # Recurse only if new segments were discovered
-      if segments.size > pre
-        $stderr.puts "- Recursion [#{degree}]: " \
-                     "#{pre} -> #{segments.size}\t(#{edges.size})"
-        linking +=
-          linking_records(
-            segments,
-            degree: degree - 1, edges: edges, _ignore: pre
-          )[0]
-      end
+      new_segments = new_segments.uniq.map { |i| self.segments[i] }
+      new_segments.each { |i| segments << i unless segments[i.name] }
+      new = segments.size - pre_expansion
+      $stderr.puts "  #{new} segments found, total: #{segments.size}"
+      break if new == 0
     end
-    [linking, edges]
+
+    internally_linking_records(segments, all_edges)
   end
 
   def internally_linking_records(segments, edges)
+    unless segments.is_a? GFA::RecordSet::SegmentSet
+      raise "Unrecognised class: #{segments.class}"
+    end
+
     $stderr.puts '- Gathering internally linking records'
-    segments = Hash[segments.map { |i| [i.name.value, true]}]
-    edges.select { |record| record.segment_names_a.all? { |s| segments[s] } }
+    s_names = Hash[segments.set.map { |i| [i.name.value, true]}]
+    self.class.advance_bar(edges.size)
+    edges.select do |record|
+      self.class.advance
+      record.segment_names_a.all? { |s| s_names[s] }
+    end
   end
 
   ##
@@ -155,7 +164,7 @@ class GFA
   # from the GFA. I.e., all links, jumps, containments, and paths.
   def all_edges
     edge_t = %i[Link Jump Containment Path]
-    edges = edge_t.flat_map { |t| records[t].set } if edges.nil?
+    @edges ||= edge_t.flat_map { |t| records[t].set }
   end
 
   private

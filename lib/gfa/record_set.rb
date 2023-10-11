@@ -23,12 +23,13 @@ class GFA::RecordSet
 
   # Instance-level
 
-  attr_reader :set, :index, :gfa
+  attr_reader :set, :index, :position, :gfa
 
   def initialize(gfa = nil)
-    @set   = []
-    @index = {}
-    @gfa   = gfa || GFA.new
+    @set      = []
+    @index    = {}
+    @position = {}
+    @gfa      = gfa || GFA.new
   end
 
   def [](k)
@@ -69,6 +70,7 @@ class GFA::RecordSet
     raise "Wrong type of record: #{v.type}" if v.type != type
 
     @set << v
+    @position[index_id(v)] = set.size - 1
     index!(v)
   end
 
@@ -107,6 +109,12 @@ class GFA::RecordSet
   def find_index(k)
     k = k.value if k.is_a? GFA::Field
     @index[k]
+  end
+
+  def position(v)
+    v = index_id(v) if v.is_a? GFA::Record
+    v = v.value if v.is_a? GFA::Field
+    @position[v]
   end
 
   def merge!(record_set)

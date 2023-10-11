@@ -1,4 +1,5 @@
 require 'gfa/version'
+require 'gfa/matrix'
 require 'gfa/record_set'
 require 'gfa/field'
 
@@ -8,6 +9,41 @@ class GFA
     unless value =~ /^(?:#{regex})$/
       raise "#{message}: #{value}"
     end
+  end
+
+  def self.advance_bar(n)
+    @advance_bar_n = n
+    @advance_bar_i = 0
+    @advance_bar_p = 0
+    @advance_bar_s = Time.now
+    $stderr.print '  [' + (' ' * 50) + ']' + " #{n}\r"
+    $stderr.print '  [>'
+  end
+
+  def self.advance
+    @advance_bar_i += 1
+    # $stderr.print "#{@advance_bar_i}"[-1] + "\b"
+    while 50 * @advance_bar_i / @advance_bar_n > @advance_bar_p
+      $stderr.print "\b=>"
+      @advance_bar_p += 1
+    end
+    return unless @advance_bar_i == @advance_bar_n
+
+    $stderr.print "\b]\r"
+    t_t = Time.now - @advance_bar_s
+    t_u = 'sec'
+
+    if t_t > 60
+      t_t /= 60
+      t_u = 'min'
+    end
+
+    if t_t > 60
+      t_t /= 60
+      t_u = 'h'
+    end
+
+    $stderr.puts '  [ %-48s ]' % "Time elapsed: #{'%.1f' % t_t} #{t_u}"
   end
 
   # Instance-level

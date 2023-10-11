@@ -27,10 +27,9 @@ class GFA::Record::Path < GFA::Record
   ##
   # Extracts all linked segments from +gfa+ (which *must* be indexed)
   def segments(gfa)
-    raise "Unindexed GFA" unless gfa.indexed?
-    segment_names_a.map do |name|
-      gfa.segments[name]
-    end
+    raise 'Unindexed GFA' unless gfa.indexed?
+
+    segment_names_a.map { |name| gfa.segments[name] }
   end
 
   ##

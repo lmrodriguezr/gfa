@@ -10,7 +10,8 @@ module GFA::Record::HasFromTo
   ##
   # Extracts all linked segments from +gfa+ (which *must* be indexed)
   def segments(gfa)
-    raise "Unindexed GFA" unless gfa.indexed?
+    raise 'Unindexed GFA' unless gfa.indexed?
+
     [gfa.segments[from.value], gfa.segments[to.value]]
   end
 

@@ -48,6 +48,7 @@ class GFA
     blk = (lno.to_f / thr).ceil
 
     # Launch children processes
+    advance_bar(blk)
     io  = []
     pid = []
     thr.times do |i|
@@ -56,7 +57,10 @@ class GFA
         io[i][0].close
         o = opts.merge(line_range: [i * blk, (i + 1) * blk - 1])
         records = []
-        read_records(file, o) { |record| records << record }
+        read_records(file, o) do |record|
+          advance if i == 0
+          records << record
+        end
         Marshal.dump(records, io[i][1])
         exit!(0)
       end
