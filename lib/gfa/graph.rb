@@ -120,7 +120,7 @@ class GFA
       raise "Unrecognised class: #{segments.class}"
     end
 
-    edge_matrix # Just to trigger matrix calculation
+    edge_matrix unless degree == 0 # Just to trigger matrix calculation
     degree.times do |round|
       $stderr.puts "- Expansion round #{round + 1}"
       self.class.advance_bar(segments.size)
