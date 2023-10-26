@@ -120,8 +120,6 @@ class GFA
       raise "Unrecognised class: #{segments.class}"
     end
 
-    return [] if degree <= 0
-
     edge_matrix # Just to trigger matrix calculation
     degree.times do |round|
       $stderr.puts "- Expansion round #{round + 1}"
