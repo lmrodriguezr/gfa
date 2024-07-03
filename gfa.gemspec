@@ -12,6 +12,11 @@ Gem::Specification.new do |s|
     'Gemfile', 'Rakefile', 'README.md', 'LICENSE'
   ]
 
+  s.executables	+= %w[
+    gfa-add-gaf gfa-greedy-modules gfa-mean-depth
+    gfa-merge gfa-paths-to-fasta gfa-subgraph
+  ]
+
   # Dependencies
   s.add_dependency 'rgl', '~> 0.5'
 
