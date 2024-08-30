@@ -22,7 +22,6 @@ class GFA
 
   def self.advance
     @advance_bar_i += 1
-    # $stderr.print "#{@advance_bar_i}"[-1] + "\b"
     while 50 * @advance_bar_i / @advance_bar_n > @advance_bar_p
       $stderr.print "\b=>"
       @advance_bar_p += 1
@@ -33,17 +32,16 @@ class GFA
     t_t = Time.now - @advance_bar_s
     t_u = 'sec'
 
-    if t_t > 60
-      t_t /= 60
-      t_u = 'min'
+    [[60, 'min'], [60, 'h'], [24, 'd'], [30, 'mo']].each do |t_a|
+      break if t_t < t_a[0]
+      t_t /= t_a[0]
+      t_u  = t_a[1]
     end
 
-    if t_t > 60
-      t_t /= 60
-      t_u = 'h'
-    end
-
-    $stderr.puts '  [ %-48s ]' % "Time elapsed: #{'%.1f' % t_t} #{t_u}"
+    ram_gb = `ps -o rss= -p #{$$}`.to_f / 1024 / 1024
+    info1 = 'Time elapsed: %.1f %s' % [t_t, t_u]
+    info2 = '%.1fG RAM' % ram_gb
+    $stderr.puts '  [ %-36s%12s ]' % [info1, info2]
   end
 
   # Instance-level

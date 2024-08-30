@@ -34,7 +34,8 @@ unless degree
 end
 
 $stderr.puts "Loading GFA: #{input_gfa}"
-gfa = GFA.load_parallel(input_gfa, (threads || 1).to_i)
+threads = (threads || 1).to_i
+gfa = GFA.load_parallel(input_gfa, threads)
 
 $stderr.puts "Loading GAF: #{input_gaf}"
 $stderr.puts "- Minimum identity: #{0.95}"
@@ -65,7 +66,7 @@ $stderr.puts "- Found #{segments.size} linked segments"
 degree = degree.to_i
 if degree >= 0
   $stderr.puts 'Subsetting graph'
-  gfa = gfa.subgraph(segments, degree: degree)
+  gfa = gfa.subgraph(segments, degree: degree, threads: threads)
 end
 
 $stderr.puts "Saving GFA: #{output}"

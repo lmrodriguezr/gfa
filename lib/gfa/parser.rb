@@ -39,7 +39,7 @@ class GFA
   # and the same +opts+ supported by +load+. Defaults to the +load+ method
   # instead if +thr <= 1+.
   def self.load_parallel(file, thr, opts = {})
-    return self.load(file, opts) if thr <= 1
+    return self.load(file, opts) if thr < 1
 
     # Prepare data
     lno = 0
@@ -48,7 +48,7 @@ class GFA
     blk = (lno.to_f / thr).ceil
 
     # Launch children processes
-    advance_bar(blk)
+    advance_bar(blk + 1)
     io  = []
     pid = []
     thr.times do |i|
@@ -58,10 +58,11 @@ class GFA
         o = opts.merge(line_range: [i * blk, (i + 1) * blk - 1])
         records = []
         read_records(file, o) do |record|
-          advance if i == 0
           records << record
+          advance if i == 0
         end
         Marshal.dump(records, io[i][1])
+        advance if i == 0
         exit!(0)
       end
       io[i][1].close
@@ -72,9 +73,11 @@ class GFA
     io.each_with_index do |pipe, k|
       result = pipe[0].read
       Process.wait(pid[k])
+      advance_bar(io.size) if k == 0
       raise "Child process failed: #{k}" if result.empty?
       Marshal.load(result).each { |record| gfa << record }
       pipe[0].close
+      advance
     end
 
     return gfa

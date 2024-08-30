@@ -62,10 +62,13 @@ class GFA
   # If +headers+, it includes all the original headers. Otherwise it only
   # only includes the version header (might be inferred).
   #
+  # +threads+ indicates the number of threads to use in the processing of this
+  # operation, currently only affecting expansion rounds.
+  #
   # All comments are ignored even if originally parsed. Walks are currently
   # ignored too. If the current GFA object doesn't have an index, it builds one
   # and forces +index: true+. The output object inherits all options.
-  def subgraph(segments, degree: 1, headers: true)
+  def subgraph(segments, degree: 1, headers: true, threads: 2)
     # Prepare objects
     unless opts[:index]
       opts[:index] = true
@@ -89,7 +92,7 @@ class GFA
     segments.each { |segment| gfa << segment }
 
     # Expand graph
-    linking = linking_records(gfa.segments, degree: degree)
+    linking = linking_records(gfa.segments, degree: degree, threads: threads)
     linking.each { |record| gfa << record }
 
     # Return
@@ -99,23 +102,17 @@ class GFA
   ##
   # Finds all the records linking to any segments in +segments+, a
   # GFA::RecordSet::SegmentSet object, and expands to links with up to
-  # +degree+ degrees of separation
-  #
-  # It only evaluates the edges given in the +edges+ Array of GFA::Record
-  # values. If +edges+ is +nil+, it uses the full set of edges in the gfa.
-  # Edge GFA::Record objects can be of type Link, Containment, Jump, or Path
-  #
-  # If +_ignore+ is passed, it ignores this number of segments at the beginning
-  # of the +segments+ set (assumes they have already been evaluated). This is
-  # only used for internal heuristics
+  # +degree+ degrees of separation. This operation uses +threads+ Threads
+  # (with shared RAM)
   #
   # Returns an array of GFA::Record objects with all the identified linking
-  # records (edges)
+  # records (edges). Edge GFA::Record objects can be of type: Link, Containment,
+  # Jump, or Path
   #
-  # IMPORTANT NOTE 1: The object +segments+ will be modified to include all
+  # IMPORTANT NOTE: The object +segments+ will be modified to include all
   # linked segments. If you don't want this behaviour, please make sure to pass
-  # a duplicate of the object instead.
-  def linking_records(segments, degree: 1)
+  # a duplicate of the object instead
+  def linking_records(segments, degree: 1, threads: 2)
     unless segments.is_a? GFA::RecordSet::SegmentSet
       raise "Unrecognised class: #{segments.class}"
     end
@@ -123,17 +120,43 @@ class GFA
     edge_matrix unless degree == 0 # Just to trigger matrix calculation
     degree.times do |round|
       $stderr.puts "- Expansion round #{round + 1}"
-      self.class.advance_bar(segments.size)
+      self.class.advance_bar(segments.size + 1)
       pre_expansion = segments.size
-      new_segments = []
-      segments.set.each do |segment|
-        self.class.advance
-        idx = self.segments.position(segment)
-        edge_matrix[nil, idx].each_with_index do |edge, target_k|
-          new_segments << target_k if edge
+
+      # Launch children processes
+      io  = []
+      pid = []
+      threads.times do |t|
+        io[t] = IO.pipe
+        pid << fork do
+          new_segments = Set.new
+          segments.set.each_with_index do |segment, k|
+            self.class.advance if t == 0
+            next unless (k % threads) == t
+            idx = self.segments.position(segment)
+            edge_matrix[nil, idx].each_with_index do |edge, target_k|
+              new_segments << target_k if edge
+            end
+          end
+          Marshal.dump(new_segments, io[t][1])
+          self.class.advance if t == 0
+          exit!(0)
         end
+        io[t][1].close
       end
-      new_segments = new_segments.uniq.map { |i| self.segments[i] }
+
+      # Collect and merge results
+      new_segments = Set.new
+      io.each_with_index do |pipe, k|
+        result = pipe[0].read
+        Process.wait(pid[k])
+        self.class.advance_bar(io.size) if k == 0
+        raise "Child process failed: #{k}" if result.empty?
+        new_segments += Marshal.load(result)
+        pipe[0].close
+        self.class.advance
+      end
+      new_segments = new_segments.map { |i| self.segments[i] }
       new_segments.each { |i| segments << i unless segments[i.name] }
       new = segments.size - pre_expansion
       $stderr.puts "  #{new} segments found, total: #{segments.size}"
